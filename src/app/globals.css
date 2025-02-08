@@ -14,8 +14,53 @@
   }
 }
 
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100dvw;
+  height: 100dvh;
+  overflow: hidden;
+  position: fixed;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  width: 100dvw;
+  height: 100dvh;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Estilos específicos para AR.js e A-Frame */
+.a-canvas,
+#arjs-video {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  object-fit: cover !important;
+  transform: translateX(25%);
+}
+
+/* Container da cena AR */
+a-scene {
+  width: 100% !important;
+  height: 100% !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+/* Esconder botão VR */
+.a-enter-vr {
+  display: none !important;
 }
