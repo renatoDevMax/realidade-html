@@ -2,6 +2,36 @@
 
 import { useEffect, useState } from "react";
 
+interface AFrameProps {
+  embedded?: boolean;
+  arjs?: string;
+  renderer?: string;
+  "vr-mode-ui"?: string;
+}
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "a-scene": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement> & AFrameProps,
+        HTMLElement
+      >;
+      "a-entity": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+      "a-marker": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+      "a-box": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+    }
+  }
+}
+
 export default function Home() {
   const [scriptsLoaded, setScriptsLoaded] = useState(false);
 
