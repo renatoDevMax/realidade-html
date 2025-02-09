@@ -9,6 +9,7 @@ export default function Home() {
       // Carrega A-Frame
       const aframe = document.createElement("script");
       aframe.src = "https://aframe.io/releases/1.4.0/aframe.min.js";
+      aframe.crossOrigin = "anonymous";
       document.head.appendChild(aframe);
 
       await new Promise((resolve) => (aframe.onload = resolve));
@@ -17,6 +18,7 @@ export default function Home() {
       const arjs = document.createElement("script");
       arjs.src =
         "https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js";
+      arjs.crossOrigin = "anonymous";
       document.head.appendChild(arjs);
 
       await new Promise((resolve) => (arjs.onload = resolve));
@@ -24,11 +26,17 @@ export default function Home() {
       // Cria a cena AR
       const scene = document.createElement("a-scene");
       scene.setAttribute("embedded", "");
-      scene.setAttribute("arjs", "sourceType: webcam; debugUIEnabled: false;");
+      scene.setAttribute(
+        "arjs",
+        "sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
+      );
+      scene.setAttribute("renderer", "antialias: true; alpha: true;");
+      scene.setAttribute("vr-mode-ui", "enabled: false");
 
       // Cria o marcador
       const marker = document.createElement("a-marker");
       marker.setAttribute("preset", "hiro");
+      marker.setAttribute("type", "pattern");
 
       // Cria o cubo vermelho
       const box = document.createElement("a-box");
@@ -40,6 +48,7 @@ export default function Home() {
       // Cria a câmera
       const camera = document.createElement("a-entity");
       camera.setAttribute("camera", "");
+      camera.setAttribute("look-controls", "enabled: false");
 
       // Monta a hierarquia
       marker.appendChild(box);
