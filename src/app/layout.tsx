@@ -9,6 +9,15 @@ const geist = Geist({
 export const metadata: Metadata = {
   title: "AR.js Demo",
   description: "A simple AR.js demo with a red cube",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {
