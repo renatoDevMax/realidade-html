@@ -19,7 +19,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <ARScene />
+      <ARScene currentIndex={currentIndex} />
 
       <div className="telaQuadrados">
         <div className="quadrado quadrado1"></div>

@@ -3,7 +3,11 @@
 import { useEffect } from "react";
 import { PRODUCTS } from "@/constants/products";
 
-export function ARScene() {
+interface ARSceneProps {
+  currentIndex: number;
+}
+
+export function ARScene({ currentIndex }: ARSceneProps) {
   useEffect(() => {
     let wakeLock: WakeLockSentinel | null = null;
 
@@ -64,24 +68,24 @@ export function ARScene() {
       marker.setAttribute("preset", "hiro");
       marker.setAttribute("type", "pattern");
 
-      // Cria os três modelos lado a lado
+      // Cria os três modelos
       const model1 = document.createElement("a-entity");
       model1.setAttribute("gltf-model", "/modelos/hipo3d.glb");
       model1.setAttribute("scale", "3 3 3");
       model1.setAttribute("rotation", "-35 0 0");
-      model1.setAttribute("position", "-4 0 0");
+      model1.setAttribute("position", currentIndex === 0 ? "0 0 0" : "-8 0 0");
 
       const model2 = document.createElement("a-entity");
       model2.setAttribute("gltf-model", "/modelos/tulimix3d.glb");
       model2.setAttribute("scale", "3 3 3");
       model2.setAttribute("rotation", "-35 0 0");
-      model2.setAttribute("position", "0 0 0");
+      model2.setAttribute("position", currentIndex === 1 ? "0 0 0" : "-8 0 0");
 
       const model3 = document.createElement("a-entity");
       model3.setAttribute("gltf-model", "/modelos/aguasanit3d.glb");
       model3.setAttribute("scale", "3 3 3");
       model3.setAttribute("rotation", "-35 0 0");
-      model3.setAttribute("position", "4 0 0");
+      model3.setAttribute("position", currentIndex === 2 ? "0 0 0" : "-8 0 0");
 
       // Adiciona todos os modelos ao marcador
       marker.appendChild(model1);
@@ -131,7 +135,7 @@ export function ARScene() {
         scene.remove();
       }
     };
-  }, []);
+  }, [currentIndex]);
 
   return null;
 }
