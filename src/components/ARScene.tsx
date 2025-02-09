@@ -11,6 +11,7 @@ export function ARScene({ currentIndex }: ARSceneProps) {
   const modelsRef = useRef<any[]>([]);
   const sceneInitializedRef = useRef(false);
 
+  // Efeito para inicialização da cena - roda apenas uma vez
   useEffect(() => {
     let wakeLock: WakeLockSentinel | null = null;
 
@@ -105,17 +106,7 @@ export function ARScene({ currentIndex }: ARSceneProps) {
 
     initializeScene();
 
-    // Atualizar apenas as posições quando currentIndex muda
-    if (sceneInitializedRef.current) {
-      modelsRef.current.forEach((model, index) => {
-        if (model) {
-          const newPosition = index === currentIndex ? "0 0 0" : "-8 0 0";
-          model.setAttribute("position", newPosition);
-        }
-      });
-    }
-
-    // Cleanup
+    // Cleanup - executado apenas quando o componente é desmontado
     return () => {
       // Remove o wake lock
       if (wakeLock) {
@@ -143,6 +134,23 @@ export function ARScene({ currentIndex }: ARSceneProps) {
         scene.remove();
       }
     };
+  }, []); // Dependências vazias - roda apenas uma vez
+
+  // Efeito separado para atualizar posições
+  useEffect(() => {
+    if (sceneInitializedRef.current) {
+      modelsRef.current.forEach((model, index) => {
+        if (model) {
+          const newPosition = index === currentIndex ? "0 0 0" : "-8 0 0";
+          model.setAttribute("animation", {
+            property: "position",
+            to: newPosition,
+            dur: 3000,
+            easing: "easeInOutQuad",
+          });
+        }
+      });
+    }
   }, [currentIndex]);
 
   return null;
