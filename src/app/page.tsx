@@ -1,56 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-interface AFrameProps {
-  embedded?: boolean;
-  arjs?: string;
-  renderer?: string;
-  "vr-mode-ui"?: string;
-}
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "a-scene": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & AFrameProps,
-        HTMLElement
-      >;
-      "a-entity": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-      "a-marker": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-      "a-box": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-    }
-  }
-}
+import { useEffect } from "react";
 
 export default function Home() {
-  const [scriptsLoaded, setScriptsLoaded] = useState(false);
-
   useEffect(() => {
-    // Importa os scripts necessários dinamicamente
+    // Carrega os scripts necessários
     const loadScripts = async () => {
-      const aframeScript = document.createElement("script");
-      aframeScript.src = "https://aframe.io/releases/1.4.0/aframe.min.js";
-      document.head.appendChild(aframeScript);
+      // Carrega A-Frame
+      const aframe = document.createElement("script");
+      aframe.src = "https://aframe.io/releases/1.4.0/aframe.min.js";
+      document.head.appendChild(aframe);
 
-      await new Promise((resolve) => (aframeScript.onload = resolve));
+      await new Promise((resolve) => (aframe.onload = resolve));
 
-      const arjsScript = document.createElement("script");
-      arjsScript.src =
+      // Carrega AR.js
+      const arjs = document.createElement("script");
+      arjs.src =
         "https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js";
-      document.head.appendChild(arjsScript);
+      document.head.appendChild(arjs);
 
-      await new Promise((resolve) => (arjsScript.onload = resolve));
-      setScriptsLoaded(true);
+      await new Promise((resolve) => (arjs.onload = resolve));
+
+      // Cria a cena AR
+      const scene = document.createElement("a-scene");
+      scene.setAttribute("embedded", "");
+      scene.setAttribute("arjs", "sourceType: webcam; debugUIEnabled: false;");
+
+      // Cria o marcador
+      const marker = document.createElement("a-marker");
+      marker.setAttribute("preset", "hiro");
+
+      // Cria o cubo vermelho
+      const box = document.createElement("a-box");
+      box.setAttribute("position", "0 0.5 0");
+      box.setAttribute("material", "color: red;");
+      box.setAttribute("scale", "1 1 1");
+      box.setAttribute("rotation", "0 45 0");
+
+      // Cria a câmera
+      const camera = document.createElement("a-entity");
+      camera.setAttribute("camera", "");
+
+      // Monta a hierarquia
+      marker.appendChild(box);
+      scene.appendChild(marker);
+      scene.appendChild(camera);
+
+      // Adiciona a cena ao body
+      document.body.appendChild(scene);
     };
 
     loadScripts();
@@ -66,32 +63,13 @@ export default function Home() {
           script.remove();
         }
       });
+
+      const scene = document.querySelector("a-scene");
+      if (scene) {
+        scene.remove();
+      }
     };
   }, []);
 
-  if (!scriptsLoaded) {
-    return <div>Loading AR experience...</div>;
-  }
-
-  return (
-    <a-scene
-      embedded
-      arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; sourceWidth: 1080; sourceHeight: 1920; displayWidth: 1080; displayHeight: 1920;"
-      renderer="logarithmicDepthBuffer: true; precision: medium; antialias: true; alpha: true;"
-      vr-mode-ui="enabled: false"
-    >
-      {/* Criando um cubo vermelho */}
-      <a-marker preset="hiro">
-        <a-box
-          position="0 0.5 0"
-          material="color: red;"
-          scale="1 1 1"
-          rotation="0 45 0"
-        ></a-box>
-      </a-marker>
-
-      {/* Câmera */}
-      <a-entity camera></a-entity>
-    </a-scene>
-  );
+  return null;
 }
