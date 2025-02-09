@@ -2,7 +2,11 @@
 
 import { useEffect } from "react";
 
-export function ARScene() {
+interface ARSceneProps {
+  modelUrl: string;
+}
+
+export function ARScene({ modelUrl }: ARSceneProps) {
   useEffect(() => {
     let wakeLock: WakeLockSentinel | null = null;
 
@@ -65,7 +69,7 @@ export function ARScene() {
 
       // Cria o modelo 3D
       const model = document.createElement("a-entity");
-      model.setAttribute("gltf-model", "/modelos/tulimix3d.glb");
+      model.setAttribute("gltf-model", modelUrl);
       model.setAttribute("position", "0 0 0");
       model.setAttribute("scale", "3 3 3");
       model.setAttribute("rotation", "-35 0 0");
@@ -114,7 +118,7 @@ export function ARScene() {
         scene.remove();
       }
     };
-  }, []);
+  }, [modelUrl]);
 
   return null;
 }
