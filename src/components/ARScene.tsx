@@ -75,12 +75,9 @@ export function ARScene({ currentIndex }: ARSceneProps) {
       PRODUCTS.forEach((product, index) => {
         const model = document.createElement("a-entity");
         model.setAttribute("gltf-model", product.model);
-        model.setAttribute("scale", "3 3 3");
-        model.setAttribute("rotation", "-35 0 0");
-        model.setAttribute(
-          "position",
-          index === currentIndex ? "0 0 0" : "-8 0 0"
-        );
+        model.setAttribute("scale", product.modelConfig.scale);
+        model.setAttribute("rotation", product.modelConfig.rotation);
+        model.setAttribute("position", product.modelConfig.initialPosition);
 
         marker.appendChild(model);
         modelsRef.current[index] = model;
@@ -142,10 +139,11 @@ export function ARScene({ currentIndex }: ARSceneProps) {
       modelsRef.current.forEach((model, index) => {
         if (model) {
           const newPosition = index === currentIndex ? "0 0 0" : "-8 0 0";
-          model.setAttribute("animation", {
+
+          model.setAttribute("animation__position", {
             property: "position",
             to: newPosition,
-            dur: 3000,
+            dur: 1000,
             easing: "easeInOutQuad",
           });
         }
