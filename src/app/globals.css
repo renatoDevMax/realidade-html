@@ -48,7 +48,7 @@ body {
   height: 100% !important;
   position: absolute !important;
   object-fit: cover !important;
-  transform: translateX(25%) scale(0.5);
+  transform: scale(0.8);
 }
 
 /* Container da cena AR */
