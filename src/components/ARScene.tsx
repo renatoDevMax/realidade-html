@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { PRODUCTS } from "@/constants/products";
 
 interface ARSceneProps {
@@ -8,6 +8,9 @@ interface ARSceneProps {
 }
 
 export function ARScene({ currentIndex }: ARSceneProps) {
+  const modelsRef = useRef<any[]>([]);
+  const sceneInitializedRef = useRef(false);
+
   useEffect(() => {
     let wakeLock: WakeLockSentinel | null = null;
 
@@ -29,11 +32,10 @@ export function ARScene({ currentIndex }: ARSceneProps) {
     };
 
     // Carrega os scripts necessários
-    const loadScripts = async () => {
-      // Solicita o wake lock
-      await requestWakeLock();
+    const initializeScene = async () => {
+      if (sceneInitializedRef.current) return;
 
-      // Adiciona listener para mudanças de visibilidade
+      await requestWakeLock();
       document.addEventListener("visibilitychange", handleVisibilityChange);
 
       // Carrega A-Frame
@@ -69,28 +71,22 @@ export function ARScene({ currentIndex }: ARSceneProps) {
       marker.setAttribute("type", "pattern");
 
       // Cria os três modelos
-      const model1 = document.createElement("a-entity");
-      model1.setAttribute("gltf-model", "/modelos/hipo3d.glb");
-      model1.setAttribute("scale", "3 3 3");
-      model1.setAttribute("rotation", "-35 0 0");
-      model1.setAttribute("position", currentIndex === 0 ? "0 0 0" : "-8 0 0");
+      PRODUCTS.forEach((product, index) => {
+        const model = document.createElement("a-entity");
+        model.setAttribute("gltf-model", product.model);
+        model.setAttribute("scale", "3 3 3");
+        model.setAttribute("rotation", "-35 0 0");
+        model.setAttribute(
+          "position",
+          index === currentIndex ? "0 0 0" : "-8 0 0"
+        );
 
-      const model2 = document.createElement("a-entity");
-      model2.setAttribute("gltf-model", "/modelos/tulimix3d.glb");
-      model2.setAttribute("scale", "3 3 3");
-      model2.setAttribute("rotation", "-35 0 0");
-      model2.setAttribute("position", currentIndex === 1 ? "0 0 0" : "-8 0 0");
+        marker.appendChild(model);
+        modelsRef.current[index] = model;
+      });
 
-      const model3 = document.createElement("a-entity");
-      model3.setAttribute("gltf-model", "/modelos/aguasanit3d.glb");
-      model3.setAttribute("scale", "3 3 3");
-      model3.setAttribute("rotation", "-35 0 0");
-      model3.setAttribute("position", currentIndex === 2 ? "0 0 0" : "-8 0 0");
-
-      // Adiciona todos os modelos ao marcador
-      marker.appendChild(model1);
-      marker.appendChild(model2);
-      marker.appendChild(model3);
+      // Monta a hierarquia
+      scene.appendChild(marker);
 
       // Cria a câmera
       const camera = document.createElement("a-entity");
@@ -103,9 +99,21 @@ export function ARScene({ currentIndex }: ARSceneProps) {
 
       // Adiciona a cena ao body
       document.body.appendChild(scene);
+
+      sceneInitializedRef.current = true;
     };
 
-    loadScripts();
+    initializeScene();
+
+    // Atualizar apenas as posições quando currentIndex muda
+    if (sceneInitializedRef.current) {
+      modelsRef.current.forEach((model, index) => {
+        if (model) {
+          const newPosition = index === currentIndex ? "0 0 0" : "-8 0 0";
+          model.setAttribute("position", newPosition);
+        }
+      });
+    }
 
     // Cleanup
     return () => {
