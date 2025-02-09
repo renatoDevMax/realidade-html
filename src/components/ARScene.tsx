@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { PRODUCTS } from "@/constants/products";
 
 interface ARSceneProps {
   modelUrl: string;
+  currentIndex: number;
 }
 
-export function ARScene({ modelUrl }: ARSceneProps) {
+export function ARScene({ modelUrl, currentIndex }: ARSceneProps) {
   useEffect(() => {
     let wakeLock: WakeLockSentinel | null = null;
 
@@ -67,12 +69,28 @@ export function ARScene({ modelUrl }: ARSceneProps) {
       marker.setAttribute("preset", "hiro");
       marker.setAttribute("type", "pattern");
 
-      // Cria o modelo 3D
-      const model = document.createElement("a-entity");
-      model.setAttribute("gltf-model", modelUrl);
-      model.setAttribute("position", "0 0 0");
-      model.setAttribute("scale", "3 3 3");
-      model.setAttribute("rotation", "-35 0 0");
+      // Cria todos os modelos
+      const models = PRODUCTS.map((product, index) => {
+        const model = document.createElement("a-entity");
+        model.setAttribute("gltf-model", product.model);
+        model.setAttribute("scale", "3 3 3");
+        model.setAttribute("rotation", "-35 0 0");
+
+        // Posiciona os modelos: atual no centro (0), outros à esquerda (-10)
+        const xPosition = index === currentIndex ? 0 : -10;
+        model.setAttribute("position", `${xPosition} 0 0`);
+
+        // Adiciona animação para transição suave
+        model.setAttribute(
+          "animation",
+          `property: position; dur: 300; easing: easeInOutQuad; to: ${xPosition} 0 0`
+        );
+
+        return model;
+      });
+
+      // Adiciona todos os modelos ao marcador
+      models.forEach((model) => marker.appendChild(model));
 
       // Cria a câmera
       const camera = document.createElement("a-entity");
@@ -80,7 +98,6 @@ export function ARScene({ modelUrl }: ARSceneProps) {
       camera.setAttribute("look-controls", "enabled: false");
 
       // Monta a hierarquia
-      marker.appendChild(model);
       scene.appendChild(marker);
       scene.appendChild(camera);
 
@@ -118,7 +135,7 @@ export function ARScene({ modelUrl }: ARSceneProps) {
         scene.remove();
       }
     };
-  }, [modelUrl]);
+  }, [currentIndex]);
 
   return null;
 }
