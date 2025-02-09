@@ -9,11 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ar-js-org/ar.js": "^3.4.7",
-    "aframe": "^1.6.0",
     "next": "15.1.6",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "aframe": "1.4.2",
+    "@ar-js-org/ar.js": "3.4.5"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -25,5 +25,8 @@
   },
   "engines": {
     "node": ">=18.17.0"
+  },
+  "overrides": {
+    "three-bmfont-text": "npm:@types/three-bmfont-text@latest"
   }
 }
