@@ -63,12 +63,12 @@ export function ARScene() {
       marker.setAttribute("preset", "hiro");
       marker.setAttribute("type", "pattern");
 
-      // Cria o cubo vermelho
-      const box = document.createElement("a-box");
-      box.setAttribute("position", "0 0.5 0");
-      box.setAttribute("material", "color: red;");
-      box.setAttribute("scale", "1 1 1");
-      box.setAttribute("rotation", "0 45 0");
+      // Cria o modelo 3D
+      const model = document.createElement("a-entity");
+      model.setAttribute("gltf-model", "/modelos/hipo3d.glb");
+      model.setAttribute("position", "0 0 0");
+      model.setAttribute("scale", "2 2 2");
+      model.setAttribute("rotation", "35 0 0");
 
       // Cria a câmera
       const camera = document.createElement("a-entity");
@@ -76,7 +76,7 @@ export function ARScene() {
       camera.setAttribute("look-controls", "enabled: false");
 
       // Monta a hierarquia
-      marker.appendChild(box);
+      marker.appendChild(model);
       scene.appendChild(marker);
       scene.appendChild(camera);
 
