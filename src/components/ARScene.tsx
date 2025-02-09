@@ -67,7 +67,7 @@ export function ARScene() {
       const model = document.createElement("a-entity");
       model.setAttribute("gltf-model", "/modelos/hipo3d.glb");
       model.setAttribute("position", "0 0 0");
-      model.setAttribute("scale", "2 2 2");
+      model.setAttribute("scale", "3 3 3");
       model.setAttribute("rotation", "-35 0 0");
 
       // Cria a câmera
