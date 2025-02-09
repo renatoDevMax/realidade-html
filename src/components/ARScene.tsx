@@ -3,12 +3,7 @@
 import { useEffect } from "react";
 import { PRODUCTS } from "@/constants/products";
 
-interface ARSceneProps {
-  modelUrl: string;
-  currentIndex: number;
-}
-
-export function ARScene({ modelUrl, currentIndex }: ARSceneProps) {
+export function ARScene() {
   useEffect(() => {
     let wakeLock: WakeLockSentinel | null = null;
 
@@ -69,28 +64,29 @@ export function ARScene({ modelUrl, currentIndex }: ARSceneProps) {
       marker.setAttribute("preset", "hiro");
       marker.setAttribute("type", "pattern");
 
-      // Cria todos os modelos
-      const models = PRODUCTS.map((product, index) => {
-        const model = document.createElement("a-entity");
-        model.setAttribute("gltf-model", product.model);
-        model.setAttribute("scale", "3 3 3");
-        model.setAttribute("rotation", "-35 0 0");
+      // Cria os três modelos lado a lado
+      const model1 = document.createElement("a-entity");
+      model1.setAttribute("gltf-model", "/modelos/hipo3d.glb");
+      model1.setAttribute("scale", "3 3 3");
+      model1.setAttribute("rotation", "-35 0 0");
+      model1.setAttribute("position", "-4 0 0");
 
-        // Posiciona os modelos: atual no centro (0), outros à esquerda (-10)
-        const xPosition = index === currentIndex ? 0 : -10;
-        model.setAttribute("position", `${xPosition} 0 0`);
+      const model2 = document.createElement("a-entity");
+      model2.setAttribute("gltf-model", "/modelos/tulimix3d.glb");
+      model2.setAttribute("scale", "3 3 3");
+      model2.setAttribute("rotation", "-35 0 0");
+      model2.setAttribute("position", "0 0 0");
 
-        // Adiciona animação para transição suave
-        model.setAttribute(
-          "animation",
-          `property: position; dur: 300; easing: easeInOutQuad; to: ${xPosition} 0 0`
-        );
-
-        return model;
-      });
+      const model3 = document.createElement("a-entity");
+      model3.setAttribute("gltf-model", "/modelos/aguasanit3d.glb");
+      model3.setAttribute("scale", "3 3 3");
+      model3.setAttribute("rotation", "-35 0 0");
+      model3.setAttribute("position", "4 0 0");
 
       // Adiciona todos os modelos ao marcador
-      models.forEach((model) => marker.appendChild(model));
+      marker.appendChild(model1);
+      marker.appendChild(model2);
+      marker.appendChild(model3);
 
       // Cria a câmera
       const camera = document.createElement("a-entity");
@@ -135,7 +131,7 @@ export function ARScene({ modelUrl, currentIndex }: ARSceneProps) {
         scene.remove();
       }
     };
-  }, [currentIndex]);
+  }, []);
 
   return null;
 }
