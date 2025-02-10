@@ -1,57 +1,25 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { PRODUCTS } from "@/constants/products";
+import { AR_CONFIG } from "@/constants/ar";
 
-interface ARSceneProps {
-  currentIndex: number;
-}
-
-export function ARScene({ currentIndex }: ARSceneProps) {
-  const modelsRef = useRef<any[]>([]);
+export function ARScene() {
   const sceneInitializedRef = useRef(false);
 
-  // Efeito para inicialização da cena - roda apenas uma vez
   useEffect(() => {
-    let wakeLock: WakeLockSentinel | null = null;
+    if (sceneInitializedRef.current) return;
 
-    // Função para solicitar o wake lock
-    const requestWakeLock = async () => {
-      try {
-        wakeLock = await navigator.wakeLock.request("screen");
-        console.log("Wake Lock ativado");
-      } catch (err) {
-        console.log("Wake Lock não suportado", err);
-      }
-    };
-
-    // Função para reativar o wake lock quando o documento ficar visível novamente
-    const handleVisibilityChange = async () => {
-      if (wakeLock !== null && document.visibilityState === "visible") {
-        await requestWakeLock();
-      }
-    };
-
-    // Carrega os scripts necessários
     const initializeScene = async () => {
-      if (sceneInitializedRef.current) return;
-
-      await requestWakeLock();
-      document.addEventListener("visibilitychange", handleVisibilityChange);
-
       // Carrega A-Frame
       const aframe = document.createElement("script");
-      aframe.src = "https://aframe.io/releases/1.4.0/aframe.min.js";
-      aframe.crossOrigin = "anonymous";
+      aframe.src = AR_CONFIG.scripts.aframe;
       document.head.appendChild(aframe);
 
       await new Promise((resolve) => (aframe.onload = resolve));
 
       // Carrega AR.js
       const arjs = document.createElement("script");
-      arjs.src =
-        "https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js";
-      arjs.crossOrigin = "anonymous";
+      arjs.src = AR_CONFIG.scripts.arjs;
       document.head.appendChild(arjs);
 
       await new Promise((resolve) => (arjs.onload = resolve));
@@ -59,32 +27,34 @@ export function ARScene({ currentIndex }: ARSceneProps) {
       // Cria a cena AR
       const scene = document.createElement("a-scene");
       scene.setAttribute("embedded", "");
-      scene.setAttribute(
-        "arjs",
-        "sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
-      );
-      scene.setAttribute("renderer", "antialias: true; alpha: true;");
+      scene.setAttribute("arjs", AR_CONFIG.scene.arjs);
+      scene.setAttribute("renderer", AR_CONFIG.scene.renderer);
       scene.setAttribute("vr-mode-ui", "enabled: false");
 
       // Cria o marcador
       const marker = document.createElement("a-marker");
-      marker.setAttribute("preset", "hiro");
-      marker.setAttribute("type", "pattern");
+      marker.setAttribute("preset", AR_CONFIG.defaultMarker);
 
-      // Cria os três modelos
-      PRODUCTS.forEach((product, index) => {
-        const model = document.createElement("a-entity");
-        model.setAttribute("gltf-model", product.model);
-        model.setAttribute("scale", product.modelConfig.scale);
-        model.setAttribute("rotation", product.modelConfig.rotation);
-        model.setAttribute("position", product.modelConfig.initialPosition);
+      // Cria um plano branco como fundo
+      const plane = document.createElement("a-plane");
+      plane.setAttribute("position", "0 0 0");
+      plane.setAttribute("rotation", "-90 0 0");
+      plane.setAttribute("width", "1");
+      plane.setAttribute("height", "0.5");
+      plane.setAttribute("color", "#FFFFFF");
 
-        marker.appendChild(model);
-        modelsRef.current[index] = model;
-      });
+      // Cria o texto
+      const text = document.createElement("a-text");
+      text.setAttribute("value", "Cartão de Visita Teste");
+      text.setAttribute("position", "0 0 0.01"); // Ligeiramente acima do plano
+      text.setAttribute("rotation", "-90 0 0");
+      text.setAttribute("align", "center");
+      text.setAttribute("color", "#000000");
+      text.setAttribute("scale", "0.5 0.5 0.5");
 
-      // Monta a hierarquia
-      scene.appendChild(marker);
+      // Adiciona o plano e o texto ao marcador
+      marker.appendChild(plane);
+      marker.appendChild(text);
 
       // Cria a câmera
       const camera = document.createElement("a-entity");
@@ -98,58 +68,32 @@ export function ARScene({ currentIndex }: ARSceneProps) {
       // Adiciona a cena ao body
       document.body.appendChild(scene);
 
+      // Cria o indicador de detecção
+      const markerIndicator = document.createElement("div");
+      markerIndicator.className = "marker-indicator";
+      document.body.appendChild(markerIndicator);
+
+      // Adiciona eventos de detecção do marcador
+      marker.addEventListener("markerFound", () => {
+        markerIndicator.classList.add("detected");
+      });
+
+      marker.addEventListener("markerLost", () => {
+        markerIndicator.classList.remove("detected");
+      });
+
       sceneInitializedRef.current = true;
     };
 
     initializeScene();
 
-    // Cleanup - executado apenas quando o componente é desmontado
     return () => {
-      // Remove o wake lock
-      if (wakeLock) {
-        wakeLock.release().then(() => {
-          console.log("Wake Lock liberado");
-        });
-      }
-
-      // Remove o listener de visibilidade
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-
-      // Remove os scripts
-      const scripts = document.querySelectorAll("script");
-      scripts.forEach((script) => {
-        if (
-          script.src.includes("aframe.min.js") ||
-          script.src.includes("aframe-ar.js")
-        ) {
-          script.remove();
-        }
-      });
-
       const scene = document.querySelector("a-scene");
-      if (scene) {
-        scene.remove();
-      }
+      const indicator = document.querySelector(".marker-indicator");
+      if (scene) scene.remove();
+      if (indicator) indicator.remove();
     };
-  }, []); // Dependências vazias - roda apenas uma vez
-
-  // Efeito separado para atualizar posições
-  useEffect(() => {
-    if (sceneInitializedRef.current) {
-      modelsRef.current.forEach((model, index) => {
-        if (model) {
-          const newPosition = index === currentIndex ? "0 0 0" : "-8 0 0";
-
-          model.setAttribute("animation__position", {
-            property: "position",
-            to: newPosition,
-            dur: 1000,
-            easing: "easeInOutQuad",
-          });
-        }
-      });
-    }
-  }, [currentIndex]);
+  }, []);
 
   return null;
 }
