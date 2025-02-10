@@ -55,12 +55,12 @@ export function ARScene() {
 
       // Cria o botão (usando um plano)
       const button = document.createElement("a-plane");
-      button.setAttribute("position", "0.7 0 0"); // Posicionado à direita do texto
+      button.setAttribute("position", "0.6 0 0.01"); // Ajustado para ficar mais próximo e ligeiramente acima
       button.setAttribute("rotation", "-90 0 0");
-      button.setAttribute("width", "0.2");
-      button.setAttribute("height", "0.2");
+      button.setAttribute("width", "0.3"); // Aumentado o tamanho
+      button.setAttribute("height", "0.3"); // Aumentado o tamanho
       button.setAttribute("color", "#4285f4");
-      button.setAttribute("class", "clickable"); // Classe para interação
+      button.setAttribute("class", "clickable");
 
       // Cria o ícone do botão (usando texto)
       const buttonIcon = document.createElement("a-text");
@@ -69,7 +69,9 @@ export function ARScene() {
       buttonIcon.setAttribute("rotation", "0 0 0");
       buttonIcon.setAttribute("align", "center");
       buttonIcon.setAttribute("color", "#FFFFFF");
-      buttonIcon.setAttribute("scale", "1 1 1");
+      buttonIcon.setAttribute("scale", "2 2 2"); // Aumentado o tamanho do ícone
+      buttonIcon.setAttribute("baseline", "center");
+      buttonIcon.setAttribute("wrapCount", "1");
 
       // Adiciona evento de clique ao botão
       button.addEventListener("click", () => {
@@ -124,11 +126,46 @@ export function ARScene() {
 
       // Adiciona cursor para interação
       const cursor = document.createElement("a-entity");
-      cursor.setAttribute("cursor", "fuse: false");
+      cursor.setAttribute("cursor", {
+        fuse: false,  // false = precisa clicar, true = olhar fixamente
+        rayOrigin: "mouse",  // permite clique do mouse em desktop
+      });
       cursor.setAttribute("position", "0 0 -1");
-      cursor.setAttribute("geometry", "primitive: ring; radiusInner: 0.02; radiusOuter: 0.03");
-      cursor.setAttribute("material", "color: white; shader: flat");
+      cursor.setAttribute("geometry", {
+        primitive: "ring",
+        radiusInner: 0.02,
+        radiusOuter: 0.03
+      });
+      cursor.setAttribute("material", {
+        color: "#FFFFFF",
+        shader: "flat",
+        opacity: 0.8
+      });
+      cursor.setAttribute("animation__click", {
+        property: "scale",
+        startEvents: "click",
+        easing: "easeInCubic",
+        dur: 150,
+        from: "0.1 0.1 0.1",
+        to: "1 1 1"
+      });
       camera.appendChild(cursor);
+
+      // Adiciona texto de instrução
+      const instruction = document.createElement("div");
+      instruction.className = "ar-instruction";
+      instruction.textContent = "Alinhe o círculo com o botão e toque na tela para interagir";
+      document.body.appendChild(instruction);
+
+      // Remove instrução quando marcador for perdido
+      marker.addEventListener("markerLost", () => {
+        instruction.style.opacity = "0";
+      });
+
+      // Mostra instrução quando marcador for encontrado
+      marker.addEventListener("markerFound", () => {
+        instruction.style.opacity = "1";
+      });
 
       sceneInitializedRef.current = true;
     };
