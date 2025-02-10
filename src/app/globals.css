@@ -248,3 +248,13 @@ a-scene {
   background-color: #00ff00;
   box-shadow: 0 0 10px #00ff00;
 }
+
+/* Estilo para elementos clicáveis */
+.clickable {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.clickable:hover {
+  transform: scale(1.1);
+}
