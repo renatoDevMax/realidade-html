@@ -55,40 +55,41 @@ export function ARScene() {
 
       // Cria o botão (usando um plano)
       const button = document.createElement("a-plane");
-      button.setAttribute("position", "0.6 0 0.01"); // Ajustado para ficar mais próximo e ligeiramente acima
+      button.setAttribute("position", "0.6 0.1 0"); // Elevamos um pouco o botão
       button.setAttribute("rotation", "-90 0 0");
-      button.setAttribute("width", "0.3"); // Aumentado o tamanho
-      button.setAttribute("height", "0.3"); // Aumentado o tamanho
+      button.setAttribute("width", "0.3");
+      button.setAttribute("height", "0.3");
       button.setAttribute("color", "#4285f4");
       button.setAttribute("class", "clickable");
+      button.setAttribute("raycaster", "objects: [camera]"); // Habilita detecção de interação física
 
-      // Cria o ícone do botão (usando texto)
+      // Cria o ícone do botão
       const buttonIcon = document.createElement("a-text");
       buttonIcon.setAttribute("value", "✓");
       buttonIcon.setAttribute("position", "0 0 0.01");
       buttonIcon.setAttribute("rotation", "0 0 0");
       buttonIcon.setAttribute("align", "center");
       buttonIcon.setAttribute("color", "#FFFFFF");
-      buttonIcon.setAttribute("scale", "2 2 2"); // Aumentado o tamanho do ícone
+      buttonIcon.setAttribute("scale", "2 2 2");
       buttonIcon.setAttribute("baseline", "center");
       buttonIcon.setAttribute("wrapCount", "1");
 
-      // Adiciona evento de clique ao botão
-      button.addEventListener("click", () => {
-        const texto = document.getElementById("texto-principal");
-        if (texto) {
-          // Alterna entre azul e preto
-          const novaCor = texto.getAttribute("color") === "#000000" ? "#0000FF" : "#000000";
-          texto.setAttribute("color", novaCor);
+      // Adiciona evento de proximidade ao botão
+      let isNearButton = false;
+      button.addEventListener("raycaster-intersected", () => {
+        if (!isNearButton) {
+          isNearButton = true;
+          button.setAttribute("color", "#2962FF");
+          const texto = document.getElementById("texto-principal");
+          if (texto) {
+            const novaCor = texto.getAttribute("color") === "#000000" ? "#0000FF" : "#000000";
+            texto.setAttribute("color", novaCor);
+          }
         }
       });
 
-      // Adiciona animação de hover ao botão
-      button.addEventListener("mouseenter", () => {
-        button.setAttribute("color", "#2962FF");
-      });
-
-      button.addEventListener("mouseleave", () => {
+      button.addEventListener("raycaster-intersected-cleared", () => {
+        isNearButton = false;
         button.setAttribute("color", "#4285f4");
       });
 
@@ -124,48 +125,11 @@ export function ARScene() {
         markerIndicator.classList.remove("detected");
       });
 
-      // Adiciona cursor para interação
-      const cursor = document.createElement("a-entity");
-      cursor.setAttribute("cursor", {
-        fuse: false,  // false = precisa clicar, true = olhar fixamente
-        rayOrigin: "mouse",  // permite clique do mouse em desktop
-      });
-      cursor.setAttribute("position", "0 0 -1");
-      cursor.setAttribute("geometry", {
-        primitive: "ring",
-        radiusInner: 0.02,
-        radiusOuter: 0.03
-      });
-      cursor.setAttribute("material", {
-        color: "#FFFFFF",
-        shader: "flat",
-        opacity: 0.8
-      });
-      cursor.setAttribute("animation__click", {
-        property: "scale",
-        startEvents: "click",
-        easing: "easeInCubic",
-        dur: 150,
-        from: "0.1 0.1 0.1",
-        to: "1 1 1"
-      });
-      camera.appendChild(cursor);
-
-      // Adiciona texto de instrução
+      // Adiciona nova instrução
       const instruction = document.createElement("div");
       instruction.className = "ar-instruction";
-      instruction.textContent = "Alinhe o círculo com o botão e toque na tela para interagir";
+      instruction.textContent = "Aproxime sua mão do botão para interagir";
       document.body.appendChild(instruction);
-
-      // Remove instrução quando marcador for perdido
-      marker.addEventListener("markerLost", () => {
-        instruction.style.opacity = "0";
-      });
-
-      // Mostra instrução quando marcador for encontrado
-      marker.addEventListener("markerFound", () => {
-        instruction.style.opacity = "1";
-      });
 
       sceneInitializedRef.current = true;
     };
